@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "retail-analytics-agent"
+version = "1.0.0"
+description = "AI-Powered Retail Analytics & Inventory Agent"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Tejas Vaity", email = "tejas.vaity3@gmail.com"}
+]
+
+dependencies = [
+    # Web Framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "python-multipart>=0.0.9",
+
+    # AI/ML
+    "openai>=1.50.0",
+    "langchain>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langchain-community>=0.3.0",
+    "langgraph>=0.2.0",
+    "tiktoken>=0.7.0",
+
+    # Google Cloud
+    "google-cloud-bigquery>=3.25.0",
+    "google-cloud-storage>=2.18.0",
+    "google-cloud-logging>=3.11.0",
+    "google-cloud-secret-manager>=2.20.0",
+    "google-auth>=2.35.0",
+
+    # Data Processing
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+
+    # Utilities
+    "httpx>=0.27.0",
+    "python-dateutil>=2.9.0",
+    "pyyaml>=6.0",
+    "jinja2>=3.1.0",
+    "tenacity>=9.0.0",
+    "structlog>=24.4.0",
+    "rich>=13.9.0",
+
+    # Optional: Caching
+    "redis>=5.0.0",
+
+    # Optional: Scheduling
+    "apscheduler>=3.10.0",
+
+    # Dev/Testing
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=5.0.0",
+    "httpx>=0.27.0",
+    "factory-boy>=3.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0",
+    "ruff>=0.6.0",
+    "mypy>=1.11.0",
+    "pre-commit>=3.8.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-v --cov=app --cov-report=term-missing"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
