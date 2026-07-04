@@ -1,0 +1,45 @@
+.PHONY: setup install db schema seed run docker deploy
+
+# Install python dependencies
+install:
+    pip install -r requirements.txt
+
+# Setup environment
+setup: install
+    cp -n .env.example .env
+    @echo "Please edit .env file with your GCP Project ID and OpenAI API Key"
+
+# Initialize BigQuery schema
+schema:
+    python scripts/setup_bigquery.py
+
+# Seed database with mock data
+seed:
+    python scripts/seed_data.py
+
+# Run locally with uvicorn
+run:
+    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Build and run with Docker Compose
+docker:
+    docker-compose -f docker/docker-compose.yml up --build
+
+# Deploy to GCP (requires gcloud CLI and terraform)
+deploy: docker-build push deploy-crun
+
+docker-build:
+    docker build -t retail-agent -f docker/Dockerfile .
+    docker tag retail-agent us-central1-docker.pkg.dev/$(shell gcloud config get-value project)/retail-agent/retail-agent:latest
+
+push:
+    docker push us-central1-docker.pkg.dev/$(shell gcloud config get-value project)/retail-agent/retail-agent:latest
+
+deploy-crun:
+    gcloud run deploy retail-agent \
+        --image us-central1-docker.pkg.dev/$(shell gcloud config get-value project)/retail-agent/retail-agent:latest \
+        --region us-central1 \
+        --allow-unauthenticated \
+        --set-env-vars GCP_PROJECT_ID=$(shell gcloud config get-value project),GCP_BIGQUERY_DATASET=retail_analytics,APP_ENV=production \
+        --set-secrets OPENAI_API_KEY=openai-api-key:latest \
+        --memory 2Gi --cpu 2 --timeout 300
