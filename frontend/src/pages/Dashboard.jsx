@@ -60,7 +60,7 @@ export default function Dashboard() {
             <tbody className="divide-y divide-gray-800">
               {alerts.slice(0, 5).map((item, i) => (
                 <tr key={i} className="text-gray-300">
-                  <td className="py-3 font-medium text-white">{item.name}</td>
+                  <td className="py-3 font-medium text-white">{item.product_name}</td>
                   <td className="py-3 text-gray-400">{item.sku}</td>
                   <td className="py-3 text-gray-400">{item.store_id}</td>
                   <td className="py-3">
