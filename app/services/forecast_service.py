@@ -418,3 +418,6 @@ Rules:
         if df.empty:
             return None
         return df.iloc[0].to_dict()
+    
+def get_forecast_service() -> ForecastService: 
+    return ForecastService()

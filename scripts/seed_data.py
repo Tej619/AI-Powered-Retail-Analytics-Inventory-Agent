@@ -1,3 +1,7 @@
+import os
+import sys
+# Add the parent directory to the Python path so it can find the 'app' module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import random
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -7,6 +11,7 @@ from google.cloud import bigquery
 
 from app.config import get_settings
 from app.utils.logger import setup_logging, get_logger
+
 
 setup_logging()
 logger = get_logger(__name__)
@@ -50,8 +55,8 @@ def generate_data():
             "brand": brand,
             "unit_cost": cost,
             "unit_price": price,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
         })
         
         # Generate Inventory for each store
@@ -67,8 +72,8 @@ def generate_data():
                 "reorder_point": reorder_pt,
                 "reorder_quantity": reorder_pt * 2,
                 "warehouse_location": f"Aisle-{random.randint(1, 20)}",
-                "last_restocked": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))).isoformat(),
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "last_restocked": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))),
+                "updated_at": datetime.now(timezone.utc),
             })
             
             # Generate 180 days of sales data
@@ -96,7 +101,7 @@ def generate_data():
                         "quantity": qty_sold,
                         "unit_price": price * random.uniform(0.95, 1.05), # slight price variance
                         "total_amount": qty_sold * price * random.uniform(0.95, 1.05),
-                        "sale_date": sale_date.isoformat(),
+                        "sale_date": sale_date,
                         "customer_id": f"CUST-{random.randint(1000, 9999)}",
                         "channel": random.choices(CHANNELS, weights=[0.6, 0.3, 0.1])[0],
                     })
