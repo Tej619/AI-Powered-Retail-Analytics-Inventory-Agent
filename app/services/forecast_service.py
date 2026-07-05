@@ -42,7 +42,7 @@ class ForecastService:
             COUNT(DISTINCT sale_id) as transaction_count
         FROM `{self.bq.full_table_name('sales')}`
         WHERE product_id = @product_id
-            AND sale_date >= DATE_SUB(CURRENT_DATE(), INTERVAL @days DAY)
+            AND sale_date >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL @days DAY)
         GROUP BY DATE(sale_date)
         ORDER BY date
         """

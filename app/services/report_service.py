@@ -155,7 +155,7 @@ class ReportService:
         days = params.get("days", 30)
         category = params.get("category")
 
-        where_clauses = [f"s.sale_date >= DATE_SUB(CURRENT_DATE(), INTERVAL {days} DAY)"]
+        where_clauses = [f"s.sale_date >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {days} DAY)"]
         query_params = []
 
         if category:
@@ -315,7 +315,7 @@ class ReportService:
                 SUM(quantity) as daily_qty,
                 SUM(total_amount) as daily_revenue
             FROM `{self.bq.full_table_name('sales')}`
-            WHERE sale_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)
+            WHERE sale_date >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 60 DAY)
             GROUP BY product_id, DATE(sale_date)
         ),
         stats AS (

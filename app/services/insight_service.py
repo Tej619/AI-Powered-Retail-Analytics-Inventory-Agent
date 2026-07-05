@@ -175,7 +175,7 @@ Pay attention to product names, quantities, monetary amounts, and dates."""
             AVG(s.total_amount) as avg_order_value
         FROM `{self.bq.full_table_name('sales')}` s
         JOIN `{self.bq.full_table_name('products')}` p ON s.product_id = p.product_id
-        WHERE s.sale_date >= DATE_SUB(CURRENT_DATE(), INTERVAL @days DAY)
+        WHERE s.sale_date >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL @days DAY)
         GROUP BY p.product_id, p.name, p.sku, p.category
         HAVING days_sold >= 3
         ORDER BY total_revenue DESC
@@ -217,7 +217,7 @@ Pay attention to product names, quantities, monetary amounts, and dates."""
                 SUM(s.total_amount) as weekly_revenue
             FROM `{self.bq.full_table_name('sales')}` s
             JOIN `{self.bq.full_table_name('products')}` p ON s.product_id = p.product_id
-            WHERE s.sale_date >= DATE_SUB(CURRENT_DATE(), INTERVAL @days DAY)
+            WHERE s.sale_date >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL @days DAY)
             GROUP BY p.product_id, p.name, p.category, DATE_TRUNC(s.sale_date, WEEK)
         ),
         with_lag AS (

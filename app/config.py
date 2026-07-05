@@ -64,7 +64,7 @@ class Settings(BaseSettings):
     redis_ttl_seconds: int = Field(default=3600, ge=60, le=86400)
 
     # ── CORS ─────────────────────────────────────────────────────
-    cors_origins: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    cors_origins: List[str] = ["http://localhost:3000", "http://localhost:8000","http://localhost:5173"]
 
     @field_validator("cors_origins", mode="before")
     @classmethod

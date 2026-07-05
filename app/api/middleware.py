@@ -1,3 +1,7 @@
+"""
+API Middleware for CORS, Error Handling, and Request Logging.
+"""
+
 import time
 from typing import Callable
 
@@ -11,26 +15,24 @@ from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-
 def setup_middleware(app: FastAPI) -> None:
     """Configure all middleware for the FastAPI application."""
     settings = get_settings()
 
-    # CORS
+    # 1. Add CORS Middleware FIRST
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origins,
+        allow_origins=["*"], # Allow all in dev
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-    # Custom error handling and request logging
+    # 2. Custom error handling and request logging
     @app.middleware("http")
     async def log_requests_and_handle_errors(request: Request, call_next: Callable) -> Response:
         start_time = time.time()
         
-        # Skip logging for health checks to reduce noise
         skip_log = request.url.path == "/health"
 
         try:
@@ -59,10 +61,15 @@ def setup_middleware(app: FastAPI) -> None:
                 error_message=e.message,
                 duration_ms=round(duration * 1000, 2),
             )
-            return JSONResponse(
+            response = JSONResponse(
                 status_code=e.status_code,
                 content=e.to_dict(),
             )
+            # Forcefully add CORS headers so the browser can read the error
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+            return response
 
         except Exception as e:
             duration = time.time() - start_time
@@ -70,15 +77,21 @@ def setup_middleware(app: FastAPI) -> None:
                 "unhandled_error",
                 method=request.method,
                 path=request.url.path,
+                error=str(e), # Log the ACTUAL error so we can see it
                 duration_ms=round(duration * 1000, 2),
             )
-            return JSONResponse(
+            response = JSONResponse(
                 status_code=500,
                 content={
                     "error": {
                         "code": "INTERNAL_SERVER_ERROR",
-                        "message": "An unexpected error occurred.",
+                        "message": str(e), # Expose the real error in dev
                         "details": {},
                     }
                 },
             )
+            # Forcefully add CORS headers here too
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+            return response

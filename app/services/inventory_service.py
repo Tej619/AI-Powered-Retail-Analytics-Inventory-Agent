@@ -41,11 +41,11 @@ class InventoryService:
 
         query = f"""
         SELECT
-            COUNT(DISTINCT product_id) as total_products,
-            COUNTIF(quantity_on_hand = 0) as out_of_stock,
-            COUNTIF(quantity_on_hand > 0 AND quantity_on_hand <= reorder_point) as low_stock,
-            COUNTIF(quantity_on_hand > reorder_point * 3) as overstocked,
-            SUM(quantity_on_hand * unit_cost) as total_value
+            COUNT(DISTINCT i.product_id) as total_products,
+            COUNTIF(i.quantity_on_hand = 0) as out_of_stock,
+            COUNTIF(i.quantity_on_hand > 0 AND i.quantity_on_hand <= i.reorder_point) as low_stock,
+            COUNTIF(i.quantity_on_hand > i.reorder_point * 3) as overstocked,
+            SUM(i.quantity_on_hand * p.unit_cost) as total_value
         FROM `{self.bq.full_table_name('inventory')}` i
         JOIN `{self.bq.full_table_name('products')}` p
             ON i.product_id = p.product_id

@@ -112,11 +112,20 @@ class BigQueryService:
             result = job.result(timeout=timeout)
             df = result.to_dataframe()
 
+            duration_ms = None
+            try:
+                if hasattr(job, 'metadata') and job.metadata:
+                    duration_ms = job.metadata.duration_ms
+                elif hasattr(job, 'stats') and job.stats:
+                    duration_ms = job.stats.get('query', {}).get('totalTimeMs')
+            except Exception:
+                pass
+
             logger.info(
                 "query_completed",
                 rows=len(df),
                 bytes_processed=job.total_bytes_processed,
-                duration_ms=job.metadata.duration_ms if job.metadata else None,
+                duration_ms=duration_ms,
             )
 
             return df
